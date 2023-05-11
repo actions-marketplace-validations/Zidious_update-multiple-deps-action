@@ -36,7 +36,7 @@ export interface ExecCommandParams {
   /* The arguments to pass to the command */
   args: string[];
   /* The current working directory */
-  cwd: string;
+  packagePath: string;
   /* Is a dev dependency or not */
   isDevDependency: boolean;
 }
