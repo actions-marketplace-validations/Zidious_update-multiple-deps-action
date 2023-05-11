@@ -76,7 +76,7 @@ export const installPackage = async ({
     throw new Error("Invalid package manager...");
   }
 
-  core.info(`Installed ${packageName}...`);
+  core.debug(`Installed ${packageName}...`);
 };
 
 export const determinePackageManager = (
