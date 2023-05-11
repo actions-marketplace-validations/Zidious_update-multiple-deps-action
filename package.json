@@ -1,0 +1,21 @@
+{
+  "name": "update-multiple-deps-action",
+  "version": "1.0.0",
+  "description": "GHA for updating multiple dependencies",
+  "main": "lib/index.js",
+  "author": "Gabe Olesen",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "build:packaged": "yarn build && ncc build dist/index.js -o dist"
+  },
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/exec": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.1.1",
+    "@vercel/ncc": "^0.36.1",
+    "typescript": "^5.0.4"
+  }
+}
