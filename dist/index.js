@@ -40,17 +40,16 @@ const main = async () => {
             core.setFailed("No packages provided...");
             return;
         }
-        core.debug(`Found packages: ${packages}...`);
+        core.info(`Found packages: ${packages}...`);
         const packageNames = packages.split(",");
-        core.debug(`Found package names: ${packageNames}...`);
+        core.info(`Found package names: ${packageNames}...`);
         const cwd = process.cwd();
         const jsonPaths = (0, utils_1.findPackageJsonPaths)(cwd);
-        core.debug(`Found package.json paths: ${jsonPaths}...`);
+        core.info(`Found package.json paths: ${jsonPaths}...`);
         for (const jsonPath of jsonPaths) {
             const packageJson = await (0, utils_1.readPackageJson)(jsonPath);
             const packagePath = path.dirname(jsonPath);
             if (packageJson.dependencies) {
-                core.debug(`Found dependencies: ${packageJson.dependencies}...`);
                 await (0, utils_1.installDependencies)({
                     packageNames,
                     dependencies: packageJson.dependencies,
@@ -59,7 +58,6 @@ const main = async () => {
                 });
             }
             if (packageJson.devDependencies) {
-                core.debug(`Found dev dependencies: ${packageJson.devDependencies}...`);
                 await (0, utils_1.installDependencies)({
                     packageNames,
                     dependencies: packageJson.devDependencies,
@@ -137,6 +135,7 @@ const installDependencies = async ({ packageNames, dependencies, packagePath, is
                 packageName,
                 isDevDependency,
             });
+            core.info(`Installed ${packageName}...`);
         }
     }
 };
@@ -165,15 +164,20 @@ const readPackageJson = async (packageJsonPath) => {
 exports.readPackageJson = readPackageJson;
 const installPackage = async ({ packagePath, packageName, isDevDependency, }) => {
     const packageManager = (0, exports.determinePackageManager)(packagePath);
-    const devDep = isDevDependency ? "-D" : "";
     if (packageManager === types_1.PackageManager.YARN) {
-        await exec.exec("yarn", ["add", devDep, packageName], {
+        await execCommand({
+            command: "yarn",
+            args: ["add", packageName],
             cwd: packagePath,
+            isDevDependency,
         });
     }
     else if (packageManager === types_1.PackageManager.NPM) {
-        await exec.exec("npm", ["install", devDep, packageName], {
+        await execCommand({
+            command: "npm",
+            args: ["install", packageName],
             cwd: packagePath,
+            isDevDependency,
         });
     }
     else {
@@ -182,6 +186,14 @@ const installPackage = async ({ packagePath, packageName, isDevDependency, }) =>
     core.debug(`Installed ${packageName}...`);
 };
 exports.installPackage = installPackage;
+const execCommand = async ({ command, args, cwd, isDevDependency, }) => {
+    if (!isDevDependency) {
+        await exec.exec(command, args, { cwd });
+    }
+    else {
+        await exec.exec(command, [...args, "-D"], { cwd });
+    }
+};
 const determinePackageManager = (packagePath) => {
     const yarnLockPath = path.join(packagePath, "yarn.lock");
     const packageLockPath = path.join(packagePath, "package-lock.json");

@@ -15,24 +15,22 @@ const main = async (): Promise<void> => {
       return;
     }
 
-    core.debug(`Found packages: ${packages}...`);
+    core.info(`Found packages: ${packages}...`);
 
     const packageNames = packages.split(",");
 
-    core.debug(`Found package names: ${packageNames}...`);
+    core.info(`Found package names: ${packageNames}...`);
 
     const cwd = process.cwd();
     const jsonPaths = findPackageJsonPaths(cwd);
 
-    core.debug(`Found package.json paths: ${jsonPaths}...`);
+    core.info(`Found package.json paths: ${jsonPaths}...`);
 
     for (const jsonPath of jsonPaths) {
       const packageJson = await readPackageJson(jsonPath);
       const packagePath = path.dirname(jsonPath);
 
       if (packageJson.dependencies) {
-        core.debug(`Found dependencies: ${packageJson.dependencies}...`);
-
         await installDependencies({
           packageNames,
           dependencies: packageJson.dependencies,
@@ -42,8 +40,6 @@ const main = async (): Promise<void> => {
       }
 
       if (packageJson.devDependencies) {
-        core.debug(`Found dev dependencies: ${packageJson.devDependencies}...`);
-
         await installDependencies({
           packageNames,
           dependencies: packageJson.devDependencies,

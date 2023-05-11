@@ -6,6 +6,7 @@ import {
   type InstallDependenciesParams,
   type InstallPackageParams,
   PackageManager,
+  ExecCommandParams,
 } from "./types";
 
 export const installDependencies = async ({
@@ -21,6 +22,8 @@ export const installDependencies = async ({
         packageName,
         isDevDependency,
       });
+
+      core.info(`Installed ${packageName}...`);
     }
   }
 };
@@ -62,21 +65,39 @@ export const installPackage = async ({
   isDevDependency,
 }: InstallPackageParams): Promise<void> => {
   const packageManager = determinePackageManager(packagePath);
-  const devDep = isDevDependency ? "-D" : "";
 
   if (packageManager === PackageManager.YARN) {
-    await exec.exec("yarn", ["add", devDep, packageName], {
+    await execCommand({
+      command: "yarn",
+      args: ["add", packageName],
       cwd: packagePath,
+      isDevDependency,
     });
   } else if (packageManager === PackageManager.NPM) {
-    await exec.exec("npm", ["install", devDep, packageName], {
+    await execCommand({
+      command: "npm",
+      args: ["install", packageName],
       cwd: packagePath,
+      isDevDependency,
     });
   } else {
     throw new Error("Invalid package manager...");
   }
 
   core.debug(`Installed ${packageName}...`);
+};
+
+const execCommand = async ({
+  command,
+  args,
+  cwd,
+  isDevDependency,
+}: ExecCommandParams): Promise<void> => {
+  if (!isDevDependency) {
+    await exec.exec(command, args, { cwd });
+  } else {
+    await exec.exec(command, [...args, "-D"], { cwd });
+  }
 };
 
 export const determinePackageManager = (
