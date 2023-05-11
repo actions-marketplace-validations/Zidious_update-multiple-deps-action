@@ -15,6 +15,8 @@ const main = async (): Promise<void> => {
       return;
     }
 
+    core.info(`Found packages: ${packages}...`);
+
     const packageNames = packages.split(",");
     const cwd = process.cwd();
     const jsonPaths = findPackageJsonPaths(cwd);
@@ -23,7 +25,6 @@ const main = async (): Promise<void> => {
       const packageJson = await readPackageJson(jsonPath);
       const packagePath = path.dirname(jsonPath);
 
-      // Update dependencies
       if (packageJson.dependencies) {
         await installDependencies({
           packageNames,
@@ -33,7 +34,6 @@ const main = async (): Promise<void> => {
         });
       }
 
-      // Update dev dependencies
       if (packageJson.devDependencies) {
         await installDependencies({
           packageNames,
