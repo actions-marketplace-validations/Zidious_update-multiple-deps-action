@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
-    "react": "16"
+    "react": "16",
+    "react-router-dom": "6"
   },
   "dependencies": {
     "react-dom": "16"
