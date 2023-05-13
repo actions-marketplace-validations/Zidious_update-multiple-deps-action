@@ -127,11 +127,16 @@ const types_1 = __nccwpck_require__(164);
 const installDependencies = async ({ packageNames, dependencies, packagePath, isDevDependency }) => {
     for (const packageName of packageNames) {
         if (dependencies[packageName]) {
-            await (0, exports.installPackage)({
+            core.info(`Found ${packageName} as a ${isDevDependency ? 'dev' : ''} dependency attempting to install...`);
+            const response = await (0, exports.installPackage)({
                 packagePath,
                 packageName,
                 isDevDependency
             });
+            if (response !== 0) {
+                core.warning(`Failed to install ${packageName}`);
+                continue;
+            }
             core.info(`Installed ${packageName}...`);
         }
     }
@@ -178,7 +183,7 @@ const installPackage = async ({ packagePath, packageName, isDevDependency }) => 
     const command = isYarn ? 'yarn' : 'npm';
     const subCommand = isYarn ? 'add' : 'install';
     const args = isDevDependency ? [subCommand, '-D'] : [subCommand];
-    await exec.exec(command, [...args, packageName], { cwd: packagePath });
+    return exec.exec(command, [...args, packageName], { cwd: packagePath });
 };
 exports.installPackage = installPackage;
 /**

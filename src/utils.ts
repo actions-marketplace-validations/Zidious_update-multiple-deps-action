@@ -21,11 +21,23 @@ export const installDependencies = async ({
 }: InstallDependenciesParams): Promise<void> => {
   for (const packageName of packageNames) {
     if (dependencies[packageName]) {
-      await installPackage({
+      core.info(
+        `Found ${packageName} as a ${
+          isDevDependency ? 'dev' : ''
+        } dependency attempting to install...`
+      )
+
+      const response = await installPackage({
         packagePath,
         packageName,
         isDevDependency
       })
+
+      if (response !== 0) {
+        core.warning(`Failed to install ${packageName}`)
+
+        continue
+      }
 
       core.info(`Installed ${packageName}...`)
     }
@@ -79,7 +91,7 @@ export const installPackage = async ({
   packagePath,
   packageName,
   isDevDependency
-}: InstallPackageParams): Promise<void> => {
+}: InstallPackageParams): Promise<number> => {
   const packageManager = getPackageManager(packagePath)
   const isYarn = packageManager === PackageManager.YARN
 
@@ -87,7 +99,7 @@ export const installPackage = async ({
   const subCommand = isYarn ? 'add' : 'install'
   const args = isDevDependency ? [subCommand, '-D'] : [subCommand]
 
-  await exec.exec(command, [...args, packageName], { cwd: packagePath })
+  return exec.exec(command, [...args, packageName], { cwd: packagePath })
 }
 
 /**
