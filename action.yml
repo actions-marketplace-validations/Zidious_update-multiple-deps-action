@@ -1,10 +1,10 @@
-name: "update-multiple-deps-action"
-description: "Update multiple dependencies within a given repository"
-author: "Gabe Olesen"
+name: 'update-multiple-deps-action'
+description: 'Update multiple dependencies within a given repository'
+author: 'Gabe Olesen'
 inputs:
-  packages: # change this, example: "packageOne,packageTwo,packageThree"
+  packages:
     required: true
-    description: "Comma delimited list of packages to update"
+    description: 'Comma delimited list of packages to update'
 runs:
-  using: "node16"
-  main: "dist/index.js"
+  using: 'node16'
+  main: 'dist/index.js'
