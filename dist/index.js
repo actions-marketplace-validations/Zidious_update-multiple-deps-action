@@ -35,10 +35,9 @@ const path = __importStar(__nccwpck_require__(17));
 const utils_1 = __nccwpck_require__(918);
 const main = async () => {
     try {
-        const packages = core.getInput("packages");
+        const packages = core.getInput('packages');
         core.info(`Found packages: ${packages}...`);
-        const packageNames = packages.split(",");
-        core.info(`Found package names: ${packageNames}...`);
+        const packageNames = packages.split(',');
         const cwd = process.cwd();
         const jsonPaths = (0, utils_1.getPackageJsonPaths)(cwd);
         core.info(`Found package.json paths: ${jsonPaths}...`);
@@ -50,7 +49,7 @@ const main = async () => {
                     packageNames,
                     dependencies: packageJson.dependencies,
                     packagePath,
-                    isDevDependency: false,
+                    isDevDependency: false
                 });
             }
             if (packageJson.devDependencies) {
@@ -58,7 +57,7 @@ const main = async () => {
                     packageNames,
                     dependencies: packageJson.devDependencies,
                     packagePath,
-                    isDevDependency: true,
+                    isDevDependency: true
                 });
             }
         }
@@ -123,13 +122,13 @@ const core = __importStar(__nccwpck_require__(186));
 const fs = __importStar(__nccwpck_require__(147));
 const path = __importStar(__nccwpck_require__(17));
 const types_1 = __nccwpck_require__(164);
-const installDependencies = async ({ packageNames, dependencies, packagePath, isDevDependency, }) => {
+const installDependencies = async ({ packageNames, dependencies, packagePath, isDevDependency }) => {
     for (const packageName of packageNames) {
         if (dependencies[packageName]) {
             await (0, exports.installPackage)({
                 packagePath,
                 packageName,
-                isDevDependency,
+                isDevDependency
             });
             core.info(`Installed ${packageName}...`);
         }
@@ -138,15 +137,15 @@ const installDependencies = async ({ packageNames, dependencies, packagePath, is
 exports.installDependencies = installDependencies;
 const getPackageJsonPaths = (dirPath) => {
     const packageJsonPaths = [];
-    const directories = fs.readdirSync(dirPath);
-    for (const dir of directories) {
-        const filePath = path.join(dirPath, dir);
+    const contents = fs.readdirSync(dirPath);
+    for (const content of contents) {
+        const filePath = path.join(dirPath, content);
         const stats = fs.statSync(filePath);
-        if (stats.isDirectory() && dir !== "node_modules") {
+        if (stats.isDirectory() && content !== 'node_modules') {
             const subPackageJsonPaths = (0, exports.getPackageJsonPaths)(filePath);
             packageJsonPaths.push(...subPackageJsonPaths);
         }
-        else if (stats.isFile() && dir === "package.json") {
+        else if (stats.isFile() && content === 'package.json') {
             packageJsonPaths.push(filePath);
         }
     }
@@ -154,45 +153,22 @@ const getPackageJsonPaths = (dirPath) => {
 };
 exports.getPackageJsonPaths = getPackageJsonPaths;
 const parsePackageJson = async (packageJsonPath) => {
-    const fileContents = await fs.promises.readFile(packageJsonPath, "utf8");
-    return JSON.parse(fileContents);
+    const packageJsonFile = await fs.promises.readFile(packageJsonPath, 'utf8');
+    return JSON.parse(packageJsonFile);
 };
 exports.parsePackageJson = parsePackageJson;
-const installPackage = async ({ packagePath, packageName, isDevDependency, }) => {
+const installPackage = async ({ packagePath, packageName, isDevDependency }) => {
     const packageManager = (0, exports.getPackageManager)(packagePath);
-    if (packageManager === types_1.PackageManager.YARN) {
-        await execCommand({
-            command: "yarn",
-            args: ["add", packageName],
-            packagePath,
-            isDevDependency,
-        });
-    }
-    else if (packageManager === types_1.PackageManager.NPM) {
-        await execCommand({
-            command: "npm",
-            args: ["install", packageName],
-            packagePath,
-            isDevDependency,
-        });
-    }
-    else {
-        throw new Error("Invalid package manager...");
-    }
-    core.debug(`Installed ${packageName}...`);
+    const isYarn = packageManager === types_1.PackageManager.YARN;
+    const command = isYarn ? 'yarn' : 'npm';
+    const subCommand = isYarn ? 'add' : 'install';
+    const args = isDevDependency ? [subCommand, '-D'] : [subCommand];
+    await exec.exec(command, [...args, packageName], { cwd: packagePath });
 };
 exports.installPackage = installPackage;
-const execCommand = async ({ command, args, packagePath, isDevDependency, }) => {
-    if (!isDevDependency) {
-        await exec.exec(command, args, { cwd: packagePath });
-    }
-    else {
-        await exec.exec(command, [...args, "-D"], { cwd: packagePath });
-    }
-};
-const getPackageManager = (packagePath) => {
-    const yarnLock = path.join(packagePath, "yarn.lock");
-    const packageLock = path.join(packagePath, "package-lock.json");
+const getPackageManager = (packageJsonPath) => {
+    const yarnLock = path.join(packageJsonPath, 'yarn.lock');
+    const packageLock = path.join(packageJsonPath, 'package-lock.json');
     if (fs.existsSync(yarnLock)) {
         return types_1.PackageManager.YARN;
     }
@@ -200,7 +176,7 @@ const getPackageManager = (packagePath) => {
         return types_1.PackageManager.NPM;
     }
     else {
-        throw new Error("Unable to determine the package manager. Make sure either yarn.lock or package-lock.json exists in the package directory...");
+        throw new Error('Unable to determine the package manager. Make sure either yarn.lock or package-lock.json exists in the package directory...');
     }
 };
 exports.getPackageManager = getPackageManager;
