@@ -1,34 +1,34 @@
-import * as core from "@actions/core";
-import * as path from "path";
+import * as core from '@actions/core'
+import * as path from 'path'
 import {
   getPackageJsonPaths,
   installDependencies,
-  parsePackageJson,
-} from "./utils";
+  parsePackageJson
+} from './utils'
 
 const main = async (): Promise<void> => {
   try {
-    const packages = core.getInput("packages");
-    core.info(`Found packages: ${packages}...`);
+    const packages = core.getInput('packages')
+    core.info(`Found packages: ${packages}...`)
 
-    const packageNames = packages.split(",");
-    core.info(`Found package names: ${packageNames}...`);
+    const packageNames = packages.split(',')
+    core.info(`Found package names: ${packageNames}...`)
 
-    const cwd = process.cwd();
-    const jsonPaths = getPackageJsonPaths(cwd);
-    core.info(`Found package.json paths: ${jsonPaths}...`);
+    const cwd = process.cwd()
+    const jsonPaths = getPackageJsonPaths(cwd)
+    core.info(`Found package.json paths: ${jsonPaths}...`)
 
     for (const jsonPath of jsonPaths) {
-      const packageJson = await parsePackageJson(jsonPath);
-      const packagePath = path.dirname(jsonPath);
+      const packageJson = await parsePackageJson(jsonPath)
+      const packagePath = path.dirname(jsonPath)
 
       if (packageJson.dependencies) {
         await installDependencies({
           packageNames,
           dependencies: packageJson.dependencies,
           packagePath,
-          isDevDependency: false,
-        });
+          isDevDependency: false
+        })
       }
 
       if (packageJson.devDependencies) {
@@ -36,13 +36,13 @@ const main = async (): Promise<void> => {
           packageNames,
           dependencies: packageJson.devDependencies,
           packagePath,
-          isDevDependency: true,
-        });
+          isDevDependency: true
+        })
       }
     }
   } catch (error) {
-    core.setFailed((error as Error).message);
+    core.setFailed((error as Error).message)
   }
-};
+}
 
-main();
+main()
