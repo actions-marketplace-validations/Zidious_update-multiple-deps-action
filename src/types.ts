@@ -29,14 +29,3 @@ export interface InstallPackageParams {
   /* Whether or not the package is a dev dependency */
   isDevDependency: boolean
 }
-
-export interface ExecCommandParams {
-  /* The command to execute */
-  command: string
-  /* The arguments to pass to the command */
-  args: string[]
-  /* The current working directory */
-  packagePath: string
-  /* Is a dev dependency or not */
-  isDevDependency: boolean
-}

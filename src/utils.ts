@@ -6,7 +6,6 @@ import {
   type InstallDependenciesParams,
   type InstallPackageParams,
   PackageManager,
-  ExecCommandParams,
   PackageJson
 } from './types'
 
@@ -31,16 +30,16 @@ export const installDependencies = async ({
 
 export const getPackageJsonPaths = (dirPath: string): string[] => {
   const packageJsonPaths: string[] = []
-  const directories = fs.readdirSync(dirPath)
+  const contents = fs.readdirSync(dirPath)
 
-  for (const dir of directories) {
-    const filePath = path.join(dirPath, dir)
+  for (const content of contents) {
+    const filePath = path.join(dirPath, content)
     const stats = fs.statSync(filePath)
 
-    if (stats.isDirectory() && dir !== 'node_modules') {
+    if (stats.isDirectory() && content !== 'node_modules') {
       const subPackageJsonPaths = getPackageJsonPaths(filePath)
       packageJsonPaths.push(...subPackageJsonPaths)
-    } else if (stats.isFile() && dir === 'package.json') {
+    } else if (stats.isFile() && content === 'package.json') {
       packageJsonPaths.push(filePath)
     }
   }
@@ -51,8 +50,9 @@ export const getPackageJsonPaths = (dirPath: string): string[] => {
 export const parsePackageJson = async (
   packageJsonPath: string
 ): Promise<PackageJson> => {
-  const fileContents = await fs.promises.readFile(packageJsonPath, 'utf8')
-  return JSON.parse(fileContents) as PackageJson
+  const packageJsonFile = await fs.promises.readFile(packageJsonPath, 'utf8')
+
+  return JSON.parse(packageJsonFile) as PackageJson
 }
 
 export const installPackage = async ({
@@ -61,44 +61,18 @@ export const installPackage = async ({
   isDevDependency
 }: InstallPackageParams): Promise<void> => {
   const packageManager = getPackageManager(packagePath)
+  const isYarn = packageManager === PackageManager.YARN
 
-  if (packageManager === PackageManager.YARN) {
-    await execCommand({
-      command: 'yarn',
-      args: ['add', packageName],
-      packagePath,
-      isDevDependency
-    })
-  } else if (packageManager === PackageManager.NPM) {
-    await execCommand({
-      command: 'npm',
-      args: ['install', packageName],
-      packagePath,
-      isDevDependency
-    })
-  } else {
-    throw new Error('Invalid package manager...')
-  }
+  const command = isYarn ? 'yarn' : 'npm'
+  const subCommand = isYarn ? 'add' : 'install'
+  const args = isDevDependency ? [subCommand, '-D'] : [subCommand]
 
-  core.debug(`Installed ${packageName}...`)
+  await exec.exec(command, [...args, packageName], { cwd: packagePath })
 }
 
-const execCommand = async ({
-  command,
-  args,
-  packagePath,
-  isDevDependency
-}: ExecCommandParams): Promise<void> => {
-  if (!isDevDependency) {
-    await exec.exec(command, args, { cwd: packagePath })
-  } else {
-    await exec.exec(command, [...args, '-D'], { cwd: packagePath })
-  }
-}
-
-export const getPackageManager = (packagePath: string): PackageManager => {
-  const yarnLock = path.join(packagePath, 'yarn.lock')
-  const packageLock = path.join(packagePath, 'package-lock.json')
+export const getPackageManager = (packageJsonPath: string): PackageManager => {
+  const yarnLock = path.join(packageJsonPath, 'yarn.lock')
+  const packageLock = path.join(packageJsonPath, 'package-lock.json')
 
   if (fs.existsSync(yarnLock)) {
     return PackageManager.YARN
