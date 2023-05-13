@@ -20,10 +20,7 @@ export const installDependencies = async ({
   isDevDependency
 }: InstallDependenciesParams): Promise<void> => {
   for (const packageName of packageNames) {
-    const name = packageName.replace(/^([^@]*@[^@]*)@(.*)$/, '$1')
-    core.debug(`Checking if ${name} is a dependency...`)
-
-    if (dependencies[name]) {
+    if (dependencies[packageName.replace(/@[^@]*$/, '')]) {
       core.info(
         `Found ${packageName} as a ${
           isDevDependency ? 'dev' : ''
