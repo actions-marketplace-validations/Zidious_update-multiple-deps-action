@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "devDependencies": {
-    "react": "16",
-    "react-router-dom": "6"
-  },
   "dependencies": {
-    "react-dom": "16"
+    "coffee-crypto-cli": "^1.2.0",
+    "rem-this": "^1.1.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4",
+    "@axe-core/webdriverjs": "4"
   }
 }

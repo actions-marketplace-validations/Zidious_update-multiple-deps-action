@@ -15,5 +15,5 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./
         with:
-          latest: 'react,react-dom'
-          next: 'react-router-dom'
+          latest: '@axe-core/playwright,@axe-core/webdriverjs'
+          next: 'rem-this,coffee-crypto-cli'
