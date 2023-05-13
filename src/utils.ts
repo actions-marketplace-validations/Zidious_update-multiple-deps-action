@@ -21,6 +21,8 @@ export const installDependencies = async ({
 }: InstallDependenciesParams): Promise<void> => {
   for (const packageName of packageNames) {
     const name = packageName.replace(/^([^@]*@[^@]*)@(.*)$/, '$1')
+    core.debug(`Checking if ${name} is a dependency...`)
+
     if (dependencies[name]) {
       core.info(
         `Found ${packageName} as a ${
@@ -33,6 +35,8 @@ export const installDependencies = async ({
         packageName,
         isDevDependency
       })
+
+      core.debug(`Response from installPackage: ${response}`)
 
       if (response !== 0) {
         core.warning(`Failed to install ${packageName}`)
