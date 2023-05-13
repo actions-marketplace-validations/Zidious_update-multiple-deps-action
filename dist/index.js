@@ -133,7 +133,8 @@ const types_1 = __nccwpck_require__(164);
  */
 const installDependencies = async ({ packageNames, dependencies, packagePath, isDevDependency }) => {
     for (const packageName of packageNames) {
-        if (dependencies[packageName.replace(/^([^@]*@[^@]*)@/, '')]) {
+        const name = packageName.replace(/^([^@]*@[^@]*)@(.*)$/, '$1');
+        if (dependencies[name]) {
             core.info(`Found ${packageName} as a ${isDevDependency ? 'dev' : ''} dependency attempting to install...`);
             const response = await (0, exports.installPackage)({
                 packagePath,
