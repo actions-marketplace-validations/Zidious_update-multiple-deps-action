@@ -9,7 +9,7 @@
 | latest | A comma separated list of dependencies to update to the `@latest` version | false    | NA      |
 | next   | A comma separated list of dependencies to update to the `@next` version   | false    | NA      |
 
-> Note: At least one of `latest` or `next` must be provided as an input
+> Note: `latest` or `next` must be provided as an input
 
 ## Usage
 
