@@ -38,8 +38,7 @@ const main = async () => {
         const packages = core.getInput('packages');
         core.info(`Found packages: ${packages}...`);
         const packageNames = packages.split(',');
-        const cwd = process.cwd();
-        const jsonPaths = (0, utils_1.getPackageJsonPaths)(cwd);
+        const jsonPaths = (0, utils_1.getPackageJsonPaths)();
         core.info(`Found package.json paths: ${jsonPaths}...`);
         for (const jsonPath of jsonPaths) {
             const packageJson = await (0, utils_1.parsePackageJson)(jsonPath);
@@ -122,6 +121,9 @@ const core = __importStar(__nccwpck_require__(186));
 const fs = __importStar(__nccwpck_require__(147));
 const path = __importStar(__nccwpck_require__(17));
 const types_1 = __nccwpck_require__(164);
+/**
+ * Function to install the given packages as dependencies or dev dependencies
+ */
 const installDependencies = async ({ packageNames, dependencies, packagePath, isDevDependency }) => {
     for (const packageName of packageNames) {
         if (dependencies[packageName]) {
@@ -135,11 +137,16 @@ const installDependencies = async ({ packageNames, dependencies, packagePath, is
     }
 };
 exports.installDependencies = installDependencies;
-const getPackageJsonPaths = (dirPath) => {
+/**
+ * Function to recursively find all package.json files in the given directory
+ * and its subdirectories. We default to find all package.json files in the
+ * current working directory
+ */
+const getPackageJsonPaths = (dir = process.cwd()) => {
     const packageJsonPaths = [];
-    const contents = fs.readdirSync(dirPath);
+    const contents = fs.readdirSync(dir);
     for (const content of contents) {
-        const filePath = path.join(dirPath, content);
+        const filePath = path.join(dir, content);
         const stats = fs.statSync(filePath);
         if (stats.isDirectory() && content !== 'node_modules') {
             const subPackageJsonPaths = (0, exports.getPackageJsonPaths)(filePath);
@@ -152,11 +159,19 @@ const getPackageJsonPaths = (dirPath) => {
     return packageJsonPaths;
 };
 exports.getPackageJsonPaths = getPackageJsonPaths;
+/**
+ * Function to parse the package.json file. Specifically,
+ * we are interested in the dependencies and devDependencies properties
+ */
 const parsePackageJson = async (packageJsonPath) => {
     const packageJsonFile = await fs.promises.readFile(packageJsonPath, 'utf8');
     return JSON.parse(packageJsonFile);
 };
 exports.parsePackageJson = parsePackageJson;
+/**
+ * Function to install the package as a dependency or dev dependency
+ * in the given package directory
+ */
 const installPackage = async ({ packagePath, packageName, isDevDependency }) => {
     const packageManager = (0, exports.getPackageManager)(packagePath);
     const isYarn = packageManager === types_1.PackageManager.YARN;
@@ -166,6 +181,9 @@ const installPackage = async ({ packagePath, packageName, isDevDependency }) => 
     await exec.exec(command, [...args, packageName], { cwd: packagePath });
 };
 exports.installPackage = installPackage;
+/**
+ * Function to determine the package manager used in the package directory
+ */
 const getPackageManager = (packageJsonPath) => {
     const yarnLock = path.join(packageJsonPath, 'yarn.lock');
     const packageLock = path.join(packageJsonPath, 'package-lock.json');

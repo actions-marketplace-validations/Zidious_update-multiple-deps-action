@@ -9,6 +9,10 @@ import {
   PackageJson
 } from './types'
 
+/**
+ * Function to install the given packages as dependencies or dev dependencies
+ */
+
 export const installDependencies = async ({
   packageNames,
   dependencies,
@@ -28,12 +32,18 @@ export const installDependencies = async ({
   }
 }
 
-export const getPackageJsonPaths = (dirPath: string): string[] => {
+/**
+ * Function to recursively find all package.json files in the given directory
+ * and its subdirectories. We default to find all package.json files in the
+ * current working directory
+ */
+
+export const getPackageJsonPaths = (dir = process.cwd()): string[] => {
   const packageJsonPaths: string[] = []
-  const contents = fs.readdirSync(dirPath)
+  const contents = fs.readdirSync(dir)
 
   for (const content of contents) {
-    const filePath = path.join(dirPath, content)
+    const filePath = path.join(dir, content)
     const stats = fs.statSync(filePath)
 
     if (stats.isDirectory() && content !== 'node_modules') {
@@ -47,6 +57,11 @@ export const getPackageJsonPaths = (dirPath: string): string[] => {
   return packageJsonPaths
 }
 
+/**
+ * Function to parse the package.json file. Specifically,
+ * we are interested in the dependencies and devDependencies properties
+ */
+
 export const parsePackageJson = async (
   packageJsonPath: string
 ): Promise<PackageJson> => {
@@ -54,6 +69,11 @@ export const parsePackageJson = async (
 
   return JSON.parse(packageJsonFile) as PackageJson
 }
+
+/**
+ * Function to install the package as a dependency or dev dependency
+ * in the given package directory
+ */
 
 export const installPackage = async ({
   packagePath,
@@ -69,6 +89,10 @@ export const installPackage = async ({
 
   await exec.exec(command, [...args, packageName], { cwd: packagePath })
 }
+
+/**
+ * Function to determine the package manager used in the package directory
+ */
 
 export const getPackageManager = (packageJsonPath: string): PackageManager => {
   const yarnLock = path.join(packageJsonPath, 'yarn.lock')

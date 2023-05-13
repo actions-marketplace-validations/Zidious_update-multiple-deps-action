@@ -12,8 +12,7 @@ const main = async (): Promise<void> => {
     core.info(`Found packages: ${packages}...`)
 
     const packageNames = packages.split(',')
-    const cwd = process.cwd()
-    const jsonPaths = getPackageJsonPaths(cwd)
+    const jsonPaths = getPackageJsonPaths()
     core.info(`Found package.json paths: ${jsonPaths}...`)
 
     for (const jsonPath of jsonPaths) {
