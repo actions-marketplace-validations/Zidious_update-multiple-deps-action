@@ -3,15 +3,25 @@ import * as path from 'path'
 import {
   getPackageJsonPaths,
   installDependencies,
-  parsePackageJson
+  parsePackageJson,
+  splitAndAppendTag
 } from './utils'
 
 const main = async (): Promise<void> => {
   try {
-    const packages = core.getInput('packages')
-    core.info(`Found packages: ${packages}...`)
+    const latest = core.getInput('latest')
+    const next = core.getInput('next')
 
-    const packageNames = packages.split(',')
+    if (!latest || !next) {
+      throw new Error('You must provide a value for latest or next inputs...')
+    }
+
+    const packageNames = [
+      ...splitAndAppendTag(latest, 'latest'),
+      ...splitAndAppendTag(next, 'next')
+    ]
+    core.info(`Found packages: ${packageNames}...`)
+
     const jsonPaths = getPackageJsonPaths()
     core.info(`Found package.json paths: ${jsonPaths}...`)
 

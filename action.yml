@@ -2,9 +2,12 @@ name: 'update-multiple-deps-action'
 description: 'Update multiple dependencies within a given repository'
 author: 'Gabe Olesen'
 inputs:
-  packages:
-    required: true
-    description: 'Comma delimited list of packages to update'
+  latest:
+    required: false
+    description: 'Comma delimited list of packages to update as "@latest"'
+  next:
+    required: false
+    description: 'Comma delimited list of packages to update as "@next"'
 runs:
   using: 'node16'
   main: 'dist/index.js'

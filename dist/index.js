@@ -35,9 +35,16 @@ const path = __importStar(__nccwpck_require__(17));
 const utils_1 = __nccwpck_require__(918);
 const main = async () => {
     try {
-        const packages = core.getInput('packages');
-        core.info(`Found packages: ${packages}...`);
-        const packageNames = packages.split(',');
+        const latest = core.getInput('latest');
+        const next = core.getInput('next');
+        if (!latest || !next) {
+            throw new Error('You must provide a value for latest or next inputs...');
+        }
+        const packageNames = [
+            ...(0, utils_1.splitAndAppendTag)(latest, 'latest'),
+            ...(0, utils_1.splitAndAppendTag)(next, 'next')
+        ];
+        core.info(`Found packages: ${packageNames}...`);
         const jsonPaths = (0, utils_1.getPackageJsonPaths)();
         core.info(`Found package.json paths: ${jsonPaths}...`);
         for (const jsonPath of jsonPaths) {
@@ -115,7 +122,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getPackageManager = exports.installPackage = exports.parsePackageJson = exports.getPackageJsonPaths = exports.installDependencies = void 0;
+exports.splitAndAppendTag = exports.getPackageManager = exports.installPackage = exports.parsePackageJson = exports.getPackageJsonPaths = exports.installDependencies = void 0;
 const exec = __importStar(__nccwpck_require__(514));
 const core = __importStar(__nccwpck_require__(186));
 const fs = __importStar(__nccwpck_require__(147));
@@ -203,6 +210,15 @@ const getPackageManager = (packageJsonPath) => {
     }
 };
 exports.getPackageManager = getPackageManager;
+/**
+ * Function to split the given input and append the tag to each package name
+ */
+const splitAndAppendTag = (input, tag) => {
+    return input.split(',').map(packageName => {
+        return `${packageName}@${tag}`;
+    });
+};
+exports.splitAndAppendTag = splitAndAppendTag;
 //# sourceMappingURL=utils.js.map
 
 /***/ }),

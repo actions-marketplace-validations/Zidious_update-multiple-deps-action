@@ -120,3 +120,13 @@ export const getPackageManager = (packageJsonPath: string): PackageManager => {
     )
   }
 }
+
+/**
+ * Function to split the given input and append the tag to each package name
+ */
+
+export const splitAndAppendTag = (input: string, tag: string): string[] => {
+  return input.split(',').map(packageName => {
+    return `${packageName}@${tag}`
+  })
+}
